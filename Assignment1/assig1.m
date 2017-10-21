@@ -1,27 +1,31 @@
 clear all; clc;
 close all;
 % robots sizing 
-L = 0.5; % [m]
-r = 1; % [m]
+L = 0.3; % [m]
+r = 0.25; % [m]
 f = 10; % [Hz]
 
 % kinematic model
 dt = 0.001;% [s] timestep 
 x0 = [0; 0; pi()] % [[m/s] [m/s] [rad/s]] intial state
-u = [-1.5; 2; 1] % [[rad/s] [rad/s] [rad/s]] inputs
-u = [2; 0; 0]
+%u = [-1.5; 2; 1] % [[rad/s] [rad/s] [rad/s]] inputs
+ u = [1; 1; 0]
 
 % noise model 
 
-n = 10000; % number of samples
+n = 4000; % number of samples
 figure(1); clf; hold on;
 
 for i = 1:n
+%incorrect velocity equations, look at the bottom equations.
+%     theta = i;
 %     v1 = - u(1)*cos(x0(3)) + j*(u(1)*sin(x0(3)))
 %     v2 = u(2)*cos(1/3*pi()-x0(3)) + j*(u(2)*sin(pi()/3-x0(3)))
 %     v3 = u(3)*cos(1/3*pi()+x0(3)) - j* (u(3)*sin(1/3*pi()+x0(3)))
 %     
-%     abs (v1)
+%    u = [v1;v2;v3]/r;
+
+    %     abs (v1)
 %     abs (v2)
 %     abs (v3)
 %     
