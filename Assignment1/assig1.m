@@ -7,16 +7,17 @@ f = 10; % [Hz]
 
 % kinematic model
 dt = 0.001;% [s] timestep 
-x0 = [0; 0; pi()] % [[m/s] [m/s] [rad/s]] intial state
+x0 = [0; 0; 0] % [[m/s] [m/s] [rad/s]] intial state
 %u = [-1.5; 2; 1] % [[rad/s] [rad/s] [rad/s]] inputs
- u = [1; 1; 0]
+ u = [2; 2; 0]
 
 % noise model 
 
-n = 4000; % number of samples
+n = 15 / dt; % number of samples for 15 second simulation
 figure(1); clf; hold on;
 
 for i = 1:n
+    u(3) = 2*(n - i) / n;
 %incorrect velocity equations, look at the bottom equations.
 %     theta = i;
 %     v1 = - u(1)*cos(x0(3)) + j*(u(1)*sin(x0(3)))
@@ -45,6 +46,9 @@ for i = 1:n
 end
 
 % a = sqrt(v_record(1,:).^2 + v_record(2,:).^2)
+samples_per_draw = 100;
+trimmed_x_rec = x_record(:,1:samples_per_draw:end);
+trimmed_v_rec = v_record(:,1:samples_per_draw:end);
 
-quiver(x_record(1,:),x_record(2,:),v_record(1,:),v_record(2,:));
-quiver(x_record(1,:),x_record(2,:),sin(x_record(3,:)),cos(x_record(3,:)),'r*');
+quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),trimmed_v_rec(1,:),trimmed_v_rec(2,:));
+quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),sin(trimmed_x_rec(3,:)),cos(trimmed_x_rec(3,:)),'r*');
