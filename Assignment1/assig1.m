@@ -9,7 +9,7 @@ f = 10; % [Hz]
 dt = 0.1;% [s] timestep (update rate)
 x0 = [0; 0; 0]; % [[m/s] [m/s] [rad/s]] intial state
 u = [-1.5; 2; 1]; % [[rad/s] [rad/s] [rad/s]] inputs
-% u = [2; 2; 0];
+ u = [2; 2; 0];
 %u = [2; -1.167612497392722; 0]; % 2m radius circle inputs 
 
 % noise model 
@@ -24,7 +24,7 @@ y_record = zeros(3, n);
 omega_variance = 0.1 / 180 * pi();
 
 for i = 1:n
-    %u(3) = 2*(n - i) / n;
+    u(3) = 2*(n - i) / n;
     %measurement
     y = x0 + [normrnd(0,0.5); normrnd(0,0.5); normrnd(-9.7 * 180/pi(),10 * 180/pi())];
 
@@ -57,4 +57,4 @@ trimmed_y_rec = y_record(:,1:samples_per_draw:end);
 quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),trimmed_v_rec(1,:),trimmed_v_rec(2,:));
 quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),sin(trimmed_x_rec(3,:)),cos(trimmed_x_rec(3,:)),'r*');
 
-quiver(trimmed_y_rec(1,:),trimmed_y_rec(2,:),zeros(n),zeros(n),'g*');
+%quiver(trimmed_y_rec(1,:),trimmed_y_rec(2,:),zeros(n),zeros(n),'g*');
