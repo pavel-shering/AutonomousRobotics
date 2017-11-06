@@ -8,9 +8,9 @@ f = 10; % [Hz]
 % kinematic model
 dt = 0.1;% [s] timestep (update rate)
 x0 = [0; 0; 0]; % [[m/s] [m/s] [rad/s]] intial state
-u = [-1.5; 2; 1]; % [[rad/s] [rad/s] [rad/s]] inputs
- u = [2; 2; 0];
-%u = [2; -1.167612497392722; 0]; % 2m radius circle inputs 
+% u = [-1.5; 2; 1]; % [[rad/s] [rad/s] [rad/s]] inputs
+u = [-1; 1; 0]; % [[rad/s] [rad/s] [rad/s]] to drive in a straight line
+% u = [2; -1.167612497392722; 0]; % 2m radius circle inputs 
 
 % noise model 
 
@@ -24,13 +24,14 @@ y_record = zeros(3, n);
 omega_variance = 0.1 / 180 * pi();
 
 for i = 1:n
+    % expanding spiral
     u(3) = 2*(n - i) / n;
     %measurement
     y = x0 + [normrnd(0,0.5); normrnd(0,0.5); normrnd(-9.7 * 180/pi(),10 * 180/pi())];
 
 
     % dynamics
-    v_x = (r*2/3) * (-u(1)*cos(x0(3)) + u(2)*cos(pi()/3+x0(3)) + u(3)*cos(pi()/3-x0(3)) );
+    v_x = (r*2/3) * (-u(1)*cos(x0(3)) + u(2)*cos(pi()/3+x0(3)) + u(3)*cos(pi()/3-x0(3)));
     v_y = (r*2/3) * (u(1)*sin(x0(3))  - u(2)*sin(pi()/3+x0(3)) + u(3)*sin(pi()/3-x0(3)));
     omega = r/(3*L) * (u(1)+u(2)+u(3));
     
@@ -42,8 +43,11 @@ for i = 1:n
                      v_y;
                      omega];
     y_record(:,i) = y;
-                 
+    
+    % with noise
     x1 = x0 + [ v_x * dt; v_y * dt; omega * dt] + [normrnd(0,0.01); normrnd(0,0.01); normrnd(0,omega_variance)];
+    % without noise
+%     x1 = x0 + [ v_x * dt; v_y * dt; omega * dt];
     x0 = x1; 
 end
 
