@@ -35,16 +35,15 @@ function [mu, S, mup, K] = ekf(mu, S, y, motion_model, measurement_model, linear
     
     % Compute predicted covariance
     Sp = G*S*G' + R;
-
     
     %%% Measurement update
     
     % Linearize measurement model at the predicted mean
     H = linearized_measurement_model(mup, u);
-
+    
     % Compute Kalman gain
     K = Sp*H'*inv(H*Sp*H'+Q);
-    
+
     % Update mean using the nonlinear measurement model
     mu = mup + K*(y-measurement_model(mup, u));
     

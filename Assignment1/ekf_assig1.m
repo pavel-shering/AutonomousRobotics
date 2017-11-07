@@ -23,24 +23,22 @@ x0 = [0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
 u = [-1.5 2 1]'; % [[rad/s] [rad/s] [rad/s]] inputs
 
 % predicted mean and covariance
-mu = [1 1 1]'; % mean (mu)
+mu = [1 2 0.5]'; % mean (mu)
 S = 1*eye(3);% covariance (Sigma)
 
-% Discrete motion model
-Ad = [ 1 dt 0 ; 0 1 0; 0 0 1];
-
 % disturbance model
-omega_std = 0.1 / 180 * pi();
-R = [0.01^2 0 0; 0 0.01^2 0; 0 0 (omega_std)^2];
+omega_std = 0.1 / 180 * pi;
+R = [0.01 0 0; 0 0.01 0; 0 0 (omega_std)].^2;
 [RE, Re] = eig (R);
 
 % Measurement model defined below
-Q = [normrnd(0,0.5); normrnd(0,0.5); normrnd(0, 10 * 180/pi())];
+Q = [0.5 0 0; 0 0.5 0; 0 0 10 / 180 * pi] .^2;
+[QE, Qe] = eig (Q);
 
 % Simulation Initializations
-Tf = 15; % duration
+Tf = 10; % duration
 T = 0:dt:Tf; % time vector 
-n = length(Ad(1,:));
+n = 3;
 x = zeros(n,length(T));
 x(:,1) = x0;
 m = length(Q(:,1));
@@ -52,47 +50,57 @@ y = zeros(m,length(T));
 % v_record = zeros(3, n);
 % y_record = zeros(3, n);
 
+% Variables to store during iteration
+x_history = zeros(n, length(T));
+mup_S = zeros(n,length(T));
+mu_S = zeros(n,length(T));
+K_S = zeros(n,n,length(T));
 
 %% linearizing g(x_t-1, u_t)
 syms x1 x2 x3 u1 u2 u3 
 
-v_x = (r*2/3) * (-u1*cos(x3) + u2*cos(pi()/3+x3) + u3*cos(pi()/3-x3));
-v_y = (r*2/3) * (u1*sin(x3)  - u2*sin(pi()/3+x3) + u3*sin(pi()/3-x3));
+% local frame velocities
+lv_x = (r/3) * (u1*cos(pi) + u2*cos(-pi/3) + u3*cos(pi/3));
+lv_y = (r/2) *  (u2*sin(-pi/3) + u3*sin(pi/3));
+
+% globbal fram velocities 
+v_x = lv_x * cos(x3) + lv_y * cos(x3 + pi/2);
+v_y = lv_x * sin(x3) + lv_y * sin(x3 + pi/2);
+
 omega = r/(3*L) * (u1 + u2 + u3);
 x_arr = [x1;x2;x3];
 
-g = x_arr + [ v_x * dt; v_y * dt; omega * dt]
+g = x_arr + [ v_x * dt; v_y * dt; omega * dt];
 
-G = jacobian(g, [x1; x2; x3])
+G = jacobian(g, [x1; x2; x3]);
 
 %% Main Loop
 for t=2:length(T)
     %%% Simulation
+    
     % Select a motion disturbance
-%     e = RE*sqrt(Re)*randn(n,1);
-    e = [normrnd(0,0.01); normrnd(0,0.01); normrnd(0,omega_std)];
-
+    e = RE*sqrt(Re)*randn(n,1);
     % Update state
-    x(:,t) = Ad*x(:,t-1) + e;
+    x(:,t) = motion_model(x(:,t-1),u) + e;
     
     % Take measurement
+    
     % Select a motion disturbance
-    Q = [normrnd(0,0.5); normrnd(0,0.5); normrnd(0, 10 * 180/pi())];
+    d = QE*sqrt(Qe)*randn(n,1);
     % Determine measurement  
-    y(:,t) = x(:,t-1) + Q;
+    y(:,t) = x(:,t-1) + d;
     
     %%% Extended Kalman Filter Estimation
     [mu, S, mup, K] = ekf(mu, S, y(:,t), ...
                           @motion_model, ...
                           @measurement_model, ...   
                           @linearized_motion_model, ...
-                          @measurement_model, ... @airplane_radar_linearized_measurement_model, ...
-                          Q, R);                        
-        
+                          @linearized_measurement_model, ... @airplane_radar_linearized_measurement_model, ...
+                          Q, R, u);
     % Store results
     mup_S(:,t) = mup;
     mu_S(:,t) = mu;
-    K_S(:,t) = K;
+%     K_S(:,t) = K;
 
     %%% Plot results
     figure(1);clf; hold on;
@@ -112,23 +120,13 @@ for t=2:length(T)
     if (makemovie) writeVideo(vidObj, getframe(gca)); end
 
 end
-xlabel('ground distance');
-ylabel('height');
+xlabel('x_pos');
+ylabel('y_pos');
 legend('True State', 'Belief');
 if (makemovie) close(vidObj); end
 
-%     % mean update
-%     v_x = (r*2/3) * (-u(1)*cos(mu_0(3)) + u(2)*cos(pi()/3+mu_0(3)) + u(3)*cos(pi()/3-mu_0(3)));
-%     v_y = (r*2/3) * (u(1)*sin(mu_0(3))  - u(2)*sin(pi()/3+mu_0(3)) + u(3)*sin(pi()/3-mu_0(3)));
-%     omega = r/(3*L) * (u(1)+u(2)+u(3));
-%         
-%     mu = mu_0 + [ v_x * dt; v_y * dt; omega * dt];
-%     
-%     % noise
-%     d = [normrnd(0,0.01); normrnd(0,0.01); normrnd(0,omega_variance)];
-% %     x0 = x1; 
-% 
-%     % prediction update
-%     S1 = G*S*G' + 
-
-% end
+figure
+plot(x(1, :), x(2, :));
+hold on
+plot(mu_S(1, :), mu_S(2, :));
+% axis([-1 4 -2 2]);
