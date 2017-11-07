@@ -25,7 +25,7 @@ x_record = zeros(3, n);
 v_record = zeros(3, n);
 y_record = zeros(3, n);
 
-omega_variance = 0.1 / 180 * pi();
+omega_variance = 0.1 / 180 * pi;
 
 for i = 1:n
     % expanding spiral
@@ -33,7 +33,7 @@ for i = 1:n
 %     u(1) = u(1) - i * 0.01; ever expanding spiral 
 %     u(2) = u(2) + i * 0.01;
     %measurement
-    y = x0 + [normrnd(0,0.5); normrnd(0,0.5); normrnd(-9.7 * 180/pi(),10 * 180/pi())];
+    y = [x0(1); x0(2); -9.7*180/pi + x0(3)] + [normrnd(0,0.5); normrnd(0,0.5); normrnd(0,10 * 180/pi)];
 
 
     % dynamics
