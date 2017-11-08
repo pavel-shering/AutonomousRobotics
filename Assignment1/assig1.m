@@ -16,7 +16,7 @@ x0 = [0; 0; 0]; % [[m/s] [m/s] [rad/s]] intial state
 % custom inputs
 % u = [-1; 1; 0]; % [[rad/s] [rad/s] [rad/s]] to drive in a straight line
 % u = [-1; 1; 1]; % [[rad/s] [rad/s] [rad/s]] to drive in a spiral
-u = [2; -1.167612497392722; 0]; % 2m radius circle inputs 
+u = [4; -1.178983134303135; 0]; % 2m diamter circle inputs 
 
 % Time
 T = 27; % Duration
