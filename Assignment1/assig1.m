@@ -36,7 +36,7 @@ for i = 1:n
     % u(2) = u(2) + i * 0.01;
     
     %measurement
-    y = [x0(1); x0(2); 99.7/180*pi - x0(3)] + [normrnd(0,0.5); normrnd(0,0.5); normrnd(0,10 / 180*pi)];
+    y = [x0(1); x0(2); x0(3)-99.7/180*pi] + [normrnd(0,0.5); normrnd(0,0.5); normrnd(0,10 / 180*pi)];
 
     % dynamics
     % local frame velocities                          

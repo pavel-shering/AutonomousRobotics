@@ -1,7 +1,11 @@
-function [ y ] = measurement_model( mup, input)
-% Outputs measurement model from Mapping I slide 16 
+function [ y ] = measurement_model( mup, input )
+% Outputs measurement model for three wheeled robot
 
-y = [ mup(1); mup(2); mup(3) - 99.7* pi / 180 ];
+if ~exist('input', 'var')
+    input = [1 1 1]';
+end
+
+y = [ mup(1); mup(2); (mup(3) - 9.7*pi/180 ) ];
 
 end
 
