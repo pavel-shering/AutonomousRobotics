@@ -23,17 +23,17 @@ x0 = [0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
 u = [-1.5 2 1]'; % [[rad/s] [rad/s] [rad/s]] inputs
 
 % predicted mean and covariance
-mu = [20 20 1]'; % mean (mu)
+mu = [200 200 1]'; % mean (mu)
 S = eye(3);% covariance (Sigma)
 
 % disturbance model
 omega_std = 0.1 * pi / 180;
 R = [0.01 0 0; 0 0.01 0; 0 0 (omega_std)].^2;
-[RE, Re] = eig (R);
+% [RE, Re] = eig (R);
 
 % Measurement model defined below
 Q = [0.5 0 0; 0 0.5 0; 0 0 (10*pi/180)] .^2;
-[QE, Qe] = eig (Q);
+% [QE, Qe] = eig (Q);
 
 % Simulation Initializations
 Tf = 15; % duration
@@ -94,6 +94,15 @@ for t=2:length(T)
     % Take measurement
     
     % Select a motion disturbance
+
+    if(mod(t,10) == 0)
+        fprintf('perfect\n')
+        Q = [0.01 0 0; 0 0.01 0; 0 0 (10*pi/180)] .^2;
+    else
+        fprintf('normal\n')
+        Q = [0.5 0 0; 0 0.5 0; 0 0 (10*pi/180)] .^2;
+    end
+%     [QE, Qe] = eig (Q);
 %     d = QE*sqrt(Qe)*randn(n,1);
     d = normrnd(0,[Q(1,1);Q(2,2);Q(3,3)].^(1/2));
     % Determine measurement  
@@ -129,13 +138,13 @@ for t=2:length(T)
     if (makemovie) writeVideo(vidObj, getframe(gca)); end
 
 end
-xlabel('x_pos');
-ylabel('y_pos');
+xlabel('xpos');
+ylabel('ypos');
 legend('True State', 'Belief');
 if (makemovie) close(vidObj); end
 
-% figure(1)
-% plot(x(1, :), x(2, :));
-% hold on
-% plot(mu_S(1, :), mu_S(2, :));
-% axis([-1 4 -2 2]);
+figure(2)
+plot(x(1, :), x(2, :));
+hold on
+plot(mu_S(1, :), mu_S(2, :));
+axis([-1 4 -2 2]);
