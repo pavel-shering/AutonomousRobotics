@@ -10,16 +10,13 @@ f = 10; % [Hz]
 x0 = [0; 0; 0]; % [[m/s] [m/s] [rad/s]] intial state
 % u = [-1.5; 2; 1]; % [[rad/s] [rad/s] [rad/s]] inputs
 
-% test 
-% u = [0, -1/r, 1/r]; %
-
 % custom inputs
 % u = [-1; 1; 0]; % [[rad/s] [rad/s] [rad/s]] to drive in a straight line
-% u = [-1; 1; 1]; % [[rad/s] [rad/s] [rad/s]] to drive in a spiral
-u = [4; -1.178983134303135; 0]; % 2m diamter circle inputs 
+u = [1; -1; 2*pi/5/L*1.2]; % [[rad/s] [rad/s] [rad/s]] to drive in a spiral
+% u = [1; -0.294745783575784; 0]; % 2m diamter circle inputs 
 
 % Time
-T = 27; % Duration
+T = 15; % Duration
 dt = 0.1;% [s] timestep (update rate)
 tvec = 0:dt:T; % Time vector
 n = length(tvec); % Number of timesteps
@@ -34,31 +31,17 @@ omega_variance = 0.1 / 180 * pi;
 
 for i = 1:n
     % expanding spiral
-    % u(3) = 2*(n - i) / n; different spiral
-    % u(1) = u(1) - i * 0.01; % ever expanding spiral 
-    % u(2) = u(2) + i * 0.01;
+%     u(3) = 2*(n - i) / n; %different spiral
+    u(1) = u(1) + i * 0.001;% ever expanding spiral 
+    u(2) = u(2) - i * 0.001;
     
     %measurement
     y = [x0(1); x0(2); x0(3)-99.7/180*pi] + [normrnd(0,0.5); normrnd(0,0.5); normrnd(0,10 / 180*pi)];
 
     % dynamics
-%     % local frame velocities                          
-%     lv_x = (r/3) * (u(1)*cos(pi) + u(2)*cos(-pi/3) + u(3)*cos(pi/3));
-%     lv_y = (r/2) *  (u(2)*sin(-pi/3) + u(3)*sin(pi/3));
-% 
-%     % globbal fram velocities 
-%     v_x = lv_x * cos(x0(3)) + lv_y * cos(x0(3) + pi/2);
-%     v_y = lv_x * sin(x0(3)) + lv_y * sin(x0(3) + pi/2);
-% 
-%     omega = r/(3*L) * (u(1)+u(2)+u(3));
-
     v_x = (r*2/3) * (-u(1)*cos(x0(3)) + u(2)*cos(pi/3-x0(3)) + u(3)*cos(pi/3+x0(3)));
     v_y = (r*2/3) * (u(1)*sin(x0(3)) + u(2)*sin(pi/3-x0(3)) - u(3)*sin(pi/3+x0(3)));
     omega = r/(3*L) * (u(1)+u(2)+u(3));
- 
-    %verify the radius
-%     rad = sqrt(v_x*v_x + v_y*v_y) / omega
-%     d = rad * 2
     
     x_record(:,i) = x0;
     v_record(:,i) = [v_x;
@@ -68,19 +51,12 @@ for i = 1:n
     
     %disturbance
     d = [normrnd(0,0.01); normrnd(0,0.01); normrnd(0,omega_variance)];
-    x0 = x0 + [ v_x * dt; v_y * dt; omega * dt]+ d;
-    % without disturbance
-%     x0 = x0 + [ v_x * dt; v_y * dt; omega * dt];
+    
+    x0 = x0 + [ v_x * dt; v_y * dt; omega * dt]% + d;
 end
 
-% a = sqrt(v_record(1,:).^2 + v_record(2,:).^2)
-samples_per_draw = 1;
-trimmed_x_rec = x_record(:,1:samples_per_draw:end);
-trimmed_v_rec = v_record(:,1:samples_per_draw:end);
-trimmed_y_rec = y_record(:,1:samples_per_draw:end);
-
-
-quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),trimmed_v_rec(1,:),trimmed_v_rec(2,:));
-quiver(trimmed_x_rec(1,:),trimmed_x_rec(2,:),sin(trimmed_x_rec(3,:)),cos(trimmed_x_rec(3,:)),'r*');
-
-%quiver(trimmed_y_rec(1,:),trimmed_y_rec(2,:),zeros(n),zeros(n),'g*');
+quiver(x_record(1,:),x_record(2,:),v_record(1,:),v_record(2,:));
+quiver(x_record(1,:),x_record(2,:),sin(x_record(3,:)),cos(x_record(3,:)),'r*');
+xlabel('xpos [m]');
+ylabel('ypos [m]');
+% quiver(y_record(1,:),y_record(2,:),zeros(n),zeros(n),'g*');

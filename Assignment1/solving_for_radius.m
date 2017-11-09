@@ -1,6 +1,6 @@
 syms v_x v_y  u2 omega radius
 
-u1 = 4;
+u1 = 1;
 u3 = 0;
 
 radius = 1;
