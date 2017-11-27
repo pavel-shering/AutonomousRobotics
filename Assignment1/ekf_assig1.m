@@ -25,6 +25,8 @@ u = [-1.5 2 1]'; % [[rad/s] [rad/s] [rad/s]] inputs
 
 % predicted mean and covariance
 mu = [5 -5 1]'; % mean (mu)
+% mu = [20 -20 1]'; % mean (mu)
+
 S = eye(3);% covariance (Sigma)
 
 % disturbance model
@@ -63,10 +65,10 @@ for t=2:length(T)
     % Select a motion disturbance
     if(mod(t,10) == 0)
         %fprintf('perfect\n')
-        Q = [0.01 0 0; 0 0.01 0; 0 0 (10*pi/180)] .^(1/2);
+        Q = [0.01 0 0; 0 0.01 0; 0 0 (10*pi/180)].^(2);
     else
         %fprintf('normal\n')
-        Q = [0.5 0 0; 0 0.5 0; 0 0 (10*pi/180)] .^(1/2);
+        Q = [0.5 0 0; 0 0.5 0; 0 0 (10*pi/180)].^(2);
     end
     d = normrnd(0,[Q(1,1);Q(2,2);Q(3,3)].^(1/2));
     y(:,t) = measurement_model(x(:,t)) + d;
@@ -95,7 +97,7 @@ for t=2:length(T)
     error_ellipse(S_pos,mu_pos,0.95);
 
     axis equal 
-    if (makemovie) writeVideo(vidObj, getframe(gca)); end
+    if (makemovie) writeVideo(vidObj, getframe(gcf)); end
 
 end
 xlabel('xpos [m]');
