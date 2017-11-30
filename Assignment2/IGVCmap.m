@@ -40,16 +40,30 @@ xF = searchgoal *10;
 tic;
 
 % Get milestones
-nS = 100;
-samples = ceil([xR(1)*rand(nS,1)+xMin(1) xR(2)*rand(nS,1)+xMin(2)]);
-
+nS = 400;
+sigma = 30;
+%samples = ceil([xR(1)*rand(nS,1)+xMin(1) xR(2)*rand(nS,1)+xMin(2)]);
+samples = zeros(nS,2);
+num_samples = 0;
+while num_samples < nS
+    q = ceil([xR(1)*rand(1,1)+xMin(1) xR(2)*rand(1,1)+xMin(2)]);
+    q2 = round (q + [normrnd(0,sigma) normrnd(0,sigma)]);
+    if ~(q2(1) > xMin(1) && q2(1) < xMax(1) && q2(2) > xMin(2) && q2(2) < xMax(2))
+        continue;
+    end
+    if map(q(1),q(2)) &&  ~map(q2(1),q2(2))
+        num_samples = num_samples + 1;
+        samples(num_samples, :) = q2;
+    elseif ~map(q(1),q(2)) &&  map(q2(1),q2(2))
+        num_samples = num_samples + 1;
+        samples(num_samples, :) = q;       
+    end
+end
 
 keep = zeros(nS);
-figure; imshow(keep);
 for i = 1:nS
     keep(i) = ~map(samples(i,1),samples(i,2));
 end
-figure; imshow(keep);
 milestones = [x0; xF; samples(find(keep==1),:)];
 figure(1); hold on;
 plot(samples(:,1),samples(:,2),'k.');
@@ -68,7 +82,7 @@ for i = 1:nM
     for j = 1:nM
         d(j) = norm(milestones(i,:)-milestones(j,:));
     end
-    [d2,ind] = sort(d);
+    [d2,ind] = sort(d)
     % Check for edge collisions (no need to check if entire edge is
     % contained in obstacles as both endpoints are in free space)
     for j=1:p
