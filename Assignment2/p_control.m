@@ -21,7 +21,7 @@ if (theta_error > pi)
 elseif (theta_error < -pi)
     theta_error = theta_error + 2 * pi;
 end
-sat_theta_error = theta_error
+% sat_theta_error = theta_error
 
 if (abs(target-x(1:2)) < error_threshold)
     u(1) = 0;

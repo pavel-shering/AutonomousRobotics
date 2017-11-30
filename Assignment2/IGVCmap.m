@@ -1,3 +1,6 @@
+clear all;
+close all;
+clc;
 %% Planning map
 
 
@@ -20,3 +23,82 @@ imagesc(1-map');
 plot(startpos(1)/dxy, startpos(2)/dxy, 'ro', 'MarkerSize',10, 'LineWidth', 3);
 plot(searchgoal(1)/dxy, searchgoal(2)/dxy, 'gx', 'MarkerSize',10, 'LineWidth', 3 );
 axis equal
+
+%% Problem parameters
+tic;
+
+% Set up the map
+xMax = [926 716]; % State bounds
+xMin = [0 0];
+xR = xMax-xMin;
+
+% Set up the goals
+x0 = startpos(1:2)*10;
+xF = searchgoal *10;
+
+%% Multi-query PRM, created in batch
+tic;
+
+% Get milestones
+nS = 100;
+samples = ceil([xR(1)*rand(nS,1)+xMin(1) xR(2)*rand(nS,1)+xMin(2)]);
+
+
+keep = zeros(nS);
+figure; imshow(keep);
+for i = 1:nS
+    keep(i) = ~map(samples(i,1),samples(i,2));
+end
+figure; imshow(keep);
+milestones = [x0; xF; samples(find(keep==1),:)];
+figure(1); hold on;
+plot(samples(:,1),samples(:,2),'k.');
+plot(milestones(:,1),milestones(:,2),'m.');
+nM = length(milestones(:,1));
+disp('Time to generate milestones');
+toc;
+
+% Attempt to add closest p edges
+tic;
+p = 20;
+e = zeros(nM,nM);
+D = zeros*ones(nM,nM);
+for i = 1:nM
+    % Find closest neighbours
+    for j = 1:nM
+        d(j) = norm(milestones(i,:)-milestones(j,:));
+    end
+    [d2,ind] = sort(d);
+    % Check for edge collisions (no need to check if entire edge is
+    % contained in obstacles as both endpoints are in free space)
+    for j=1:p
+        cur = ind(j);
+        if (i<cur)
+            collision = false;
+            [line_occupancy_x, line_occupancy_y] = bresenham(milestones(i,1), milestones(i,2), milestones(cur,1), milestones(cur,2));
+            for k = 1:length(line_occupancy_x)
+                if (map(line_occupancy_x(k),line_occupancy_y(k)))
+                    collision = true;
+                    break;
+                end
+            end
+            if (~collision)
+                e(i,cur) = 1;
+                e(cur,i) = 1;
+                plot([milestones(i,1) milestones(cur,1)],[milestones(i,2) milestones(cur,2)],'m');
+            end
+        end
+    end
+end
+disp('Time to connect roadmap');
+toc;
+
+% Find shortest path
+tic;
+[sp, sd] = shortestpath_mr(milestones, e, 1, 2, 1, 1, 0);
+disp('Time to find shortest path');
+toc;
+for i=1:length(sp)-1
+    plot(milestones(sp(i:i+1),1),milestones(sp(i:i+1),2), 'go-', 'LineWidth',3);
+end
+
