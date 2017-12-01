@@ -14,7 +14,7 @@ error_threshold = 0.1;
 
 theta_ref = atan2(target(2)-x(2),target(1)-x(1));
 theta = x(3);
-theta_error = theta_ref - theta
+theta_error = theta_ref - theta;
 
 if (theta_error > pi)
     theta_error = theta_error - 2 * pi;

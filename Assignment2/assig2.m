@@ -31,6 +31,7 @@ r = 1.7;
 
 % initial state [x,y,theta]
 t = 0;
+end_i = 0;
 xprev = startpos'; %[0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
 u = [3 0]';
 
@@ -73,10 +74,13 @@ for i = 1:n
     
     
     if (waypoint_index > length(waypoints))
-        waypoint_index = 1;
+%         waypoint_index = 1;
+        end_i = i;
+        break;
     end
 end
-
+runtime = i * dt;
+fprintf('Course runtime: %f', runtime);
 colormap('gray');
 drawn_map = map + padded_map * 0.3;
 imagesc(1-drawn_map');
@@ -86,17 +90,21 @@ plot(searchgoal(1)/dxy, searchgoal(2)/dxy, 'gx', 'MarkerSize',10, 'LineWidth', 3
 x_record(1:2,:) = x_record(1:2,:)*10; %%%% Massive hack, fix this
 
 rectangle('Position',[-10 -2.5 20 5])
-quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)),sin(x_record(3,:)),'r*');
-quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)+u_record(2,:)), ...
-    sin(x_record(3,:)+u_record(2,:)),'g*');
+quiver(x_record(1,1:i),x_record(2,1:i),cos(x_record(3,1:i)),sin(x_record(3,1:i)),'r*');
+quiver(x_record(1,1:i),x_record(2,1:i),cos(x_record(3,1:i)+u_record(2,1:i)), ...
+    sin(x_record(3,1:i)+u_record(2,1:i)),'g*');
 % plot(c_record(1,:),c_record(2,:),'bo');
 
 xlabel('xpos [dm]');
 ylabel('ypos [dm]');
 axis equal;
-
+name = sprintf('/report_resources/robot_run BS %d RS %d sigma %d runtime %f rand %d.fig', nBS, nRS, sigma, runtime, bool_rand);
+saveas(gcf,[pwd name]);
 
 % xlabel('xpos [m]');
 % ylabel('ypos [m]');
 % legend('Measurement','True State','State Estimate');
 % if (makemovie) close(vidObj); end
+
+
+

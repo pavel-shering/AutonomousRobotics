@@ -42,10 +42,11 @@ xF = searchgoal *10;
 tic;
 
 % Get milestones
-nS = 250;
-nBS = 100;
+nS = 150;
+nBS = 150;
 nRS = nS - nBS;
 sigma = 50;
+bool_rand = 1;
 
 %samples = ceil([xR(1)*rand(nS,1)+xMin(1) xR(2)*rand(nS,1)+xMin(2)]);
 samples = zeros(nS,2);
@@ -65,7 +66,7 @@ while num_samples < nS
             num_B_samples = num_B_samples + 1;
         end
     elseif num_R_samples < nRS
-        if ~padded_map(q(1),q(2)) &&  ~padded_map(q2(1),q2(2))
+        if ~padded_map(q(1),q(2)) &&  (~padded_map(q2(1),q2(2)) | bool_rand)
             samples(num_samples + 1, :) = q;
             num_R_samples = num_R_samples + 1;
         end
@@ -142,3 +143,6 @@ for i=1:length(sp)-1
 end
 waypoints(length(sp),:) = milestones(sp(length(sp)),:);
 waypoints = waypoints * 0.1;
+
+name = sprintf('/report_resources/path_finding BS %d RS %d sigma %d rand %d.fig', nBS, nRS, sigma, bool_rand);
+saveas(gcf,[pwd name]);
