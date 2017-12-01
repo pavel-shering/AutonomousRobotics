@@ -1,6 +1,7 @@
-clear all;
-close all;
-clc;
+% clear all;
+% close all;
+% clc;
+figure;
 
 makemovie = 0;
 if(makemovie)
@@ -14,7 +15,7 @@ f = 10; % [Hz]
 dt = 1 / f;% [s] timestep (update rate)
 
 %simulation
-T = 20; % [s] Duration
+T = 110; % [s] Duration
 tvec = 0:dt:T; % Time vector
 n = length(tvec); % Number of timesteps
 
@@ -28,7 +29,7 @@ r = 1.7;
 
 % initial state [x,y,theta]
 t = 0;
-xprev = [0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
+xprev = startpos'; %[0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
 u = [3 0]';
 
 figure(1); clf; hold on;
@@ -39,22 +40,22 @@ c_record = zeros(2, n);
 
 omega_variance = 1 / 180 * pi;
 
-waypoints = [10 -2.5; -10 -2.5; -10 2.5; 10 2.5]';
+%waypoints = [10 -2.5; -10 -2.5; -10 2.5; 10 2.5];
 waypoint_index = 2;
-prev_waypoint = waypoints(:,1);
+prev_waypoint = waypoints(1,:);
 for i = 1:n
     t = t + dt;
     %input 
    % u = [3 (10-t)*pi/180]';% [ [m/s] [rad/s]]
     p1 = prev_waypoint;
-    p2 = waypoints(:,waypoint_index);
-    [outside carrot_outside carrot_point] = get_carrot(p1, p2, xprev(1:2), r);
+    p2 = waypoints(waypoint_index,:);
+    [outside carrot_outside carrot_point] = get_carrot(p1', p2', xprev(1:2), r);
     
    
     u = p_control(carrot_point, xprev, u);
     if (carrot_outside)
         
-        prev_waypoint = waypoints(:,waypoint_index);
+        prev_waypoint = waypoints(waypoint_index,:);
         waypoint_index = waypoint_index + 1;
     end
     x_record(:,i) = xprev;
@@ -69,19 +70,26 @@ for i = 1:n
     
     
     if (waypoint_index > length(waypoints))
-        
         waypoint_index = 1;
     end
 end
+
+colormap('gray');
+drawn_map = map + padded_map * 0.3;
+imagesc(1-drawn_map');
+plot(startpos(1)/dxy, startpos(2)/dxy, 'ro', 'MarkerSize',10, 'LineWidth', 3);
+plot(searchgoal(1)/dxy, searchgoal(2)/dxy, 'gx', 'MarkerSize',10, 'LineWidth', 3 );
+
+x_record(1:2,:) = x_record(1:2,:)*10; %%%% Massive hack, fix this
 
 rectangle('Position',[-10 -2.5 20 5])
 quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)),sin(x_record(3,:)),'r*');
 quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)+u_record(2,:)), ...
     sin(x_record(3,:)+u_record(2,:)),'g*');
-plot(c_record(1,:),c_record(2,:),'bo');
+% plot(c_record(1,:),c_record(2,:),'bo');
 
-xlabel('xpos [m]');
-ylabel('ypos [m]');
+xlabel('xpos [dm]');
+ylabel('ypos [dm]');
 axis equal;
 
 
