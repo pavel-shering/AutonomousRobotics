@@ -1,7 +1,7 @@
-% clear all;
-% close all;
-% clc;
-figure;
+clear all;
+close all;
+clc;
+
 
 makemovie = 0;
 if(makemovie)
@@ -10,6 +10,8 @@ if(makemovie)
     vidObj.FrameRate = 8;
     open(vidObj);
 end
+
+run('IGVCmap.m');
 
 f = 10; % [Hz]
 dt = 1 / f;% [s] timestep (update rate)
@@ -32,7 +34,8 @@ t = 0;
 xprev = startpos'; %[0 0 0]'; % [[m/s] [m/s] [rad/s]] intial state
 u = [3 0]';
 
-figure(1); clf; hold on;
+figure('Name','Robot Navigation');
+hold on;
 
 x_record = zeros(3, n);
 u_record = zeros(2, n);

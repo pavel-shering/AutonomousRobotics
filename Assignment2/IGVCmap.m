@@ -1,6 +1,3 @@
-clear all;
-close all;
-clc;
 %% Planning map
 
 
@@ -21,7 +18,7 @@ startpos = [40 5 pi];
 searchgoal = [50 10];
 
 % Plotting
-figure(1); clf; hold on;
+figure('Name','Path Finding'); hold on;
 colormap('gray');
 drawn_map = map + padded_map * 0.3;
 imagesc(1-drawn_map');
@@ -45,7 +42,7 @@ xF = searchgoal *10;
 tic;
 
 % Get milestones
-nS = 450;
+nS = 250;
 nBS = 100;
 nRS = nS - nBS;
 sigma = 50;
@@ -89,7 +86,7 @@ for i = 1:nS
     keep(i) = ~padded_map(samples(i,1),samples(i,2));
 end
 milestones = [x0; xF; samples(find(keep==1),:)];
-figure(1); hold on;
+
 plot(samples(:,1),samples(:,2),'k.');
 plot(milestones(:,1),milestones(:,2),'m.');
 nM = length(milestones(:,1));
