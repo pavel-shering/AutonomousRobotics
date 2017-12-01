@@ -82,14 +82,15 @@ for i = 1:nM
     for j = 1:nM
         d(j) = norm(milestones(i,:)-milestones(j,:));
     end
-    [d2,ind] = sort(d)
+    [d2,ind] = sort(d);
     % Check for edge collisions (no need to check if entire edge is
     % contained in obstacles as both endpoints are in free space)
     for j=1:p
         cur = ind(j);
         if (i<cur)
             collision = false;
-            [line_occupancy_x, line_occupancy_y] = bresenham(milestones(i,1), milestones(i,2), milestones(cur,1), milestones(cur,2));
+            [line_occupancy_x, line_occupancy_y] = bresenham(milestones(i,1), ...
+                milestones(i,2), milestones(cur,1), milestones(cur,2));
             for k = 1:length(line_occupancy_x)
                 if (map(line_occupancy_x(k),line_occupancy_y(k)))
                     collision = true;

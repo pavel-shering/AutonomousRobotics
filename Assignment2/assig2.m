@@ -23,7 +23,7 @@ L = 0.3; % [m]
 d_lim = 30*pi/180;% [rad] angle limit
 
 % carrot controller parameters
-r = 1.2;
+r = 1.7;
 
 
 % initial state [x,y,theta]
@@ -70,10 +70,11 @@ for i = 1:n
     
     if (waypoint_index > length(waypoints))
         
-        waypoint_index = 1
+        waypoint_index = 1;
     end
 end
 
+rectangle('Position',[-10 -2.5 20 5])
 quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)),sin(x_record(3,:)),'r*');
 quiver(x_record(1,:),x_record(2,:),cos(x_record(3,:)+u_record(2,:)), ...
     sin(x_record(3,:)+u_record(2,:)),'g*');
