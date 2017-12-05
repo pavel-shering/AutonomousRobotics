@@ -1,6 +1,5 @@
 %% Planning map
 
-
 I = imread('IGVCmap.jpg');
 map = im2bw(I, 0.7); % Convert to 0-1 image
 map = 1-flipud(map)'; % Convert to 0 free, 1 occupied and flip.
@@ -42,11 +41,11 @@ xF = searchgoal *10;
 tic;
 
 % Get milestones
-nS = 150;
+nS = 250;
 nBS = 150;
 nRS = nS - nBS;
-sigma = 50;
-bool_rand = 1;
+sigma = 35;
+bool_rand = 0;
 
 %samples = ceil([xR(1)*rand(nS,1)+xMin(1) xR(2)*rand(nS,1)+xMin(2)]);
 samples = zeros(nS,2);
@@ -72,7 +71,7 @@ while num_samples < nS
         end
     end
 	num_samples = num_B_samples + num_R_samples;
-%%working lavalle sampling
+% lavalle sampling
 %     if padded_map(q(1),q(2)) &&  ~padded_map(q2(1),q2(2))
 %         num_samples = num_samples + 1;
 %         samples(num_samples, :) = q2;
@@ -144,5 +143,6 @@ end
 waypoints(length(sp),:) = milestones(sp(length(sp)),:);
 waypoints = waypoints * 0.1;
 
-name = sprintf('/report_resources/path_finding BS %d RS %d sigma %d rand %d.fig', nBS, nRS, sigma, bool_rand);
+name = sprintf('/report_resources/path_finding BS %d RS %d sigma %d rand %d.fig',...
+    nBS, nRS, sigma, bool_rand);
 saveas(gcf,[pwd name]);

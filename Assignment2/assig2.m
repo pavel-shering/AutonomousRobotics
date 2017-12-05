@@ -2,15 +2,6 @@ clear all;
 close all;
 clc;
 
-
-makemovie = 0;
-if(makemovie)
-    vidObj = VideoWriter('ekf.avi');
-    vidObj.Quality = 100;
-    vidObj.FrameRate = 8;
-    open(vidObj);
-end
-
 run('IGVCmap.m');
 
 f = 10; % [Hz]
@@ -23,11 +14,10 @@ n = length(tvec); % Number of timesteps
 
 % robot dimensions 
 L = 0.3; % [m]
-d_lim = 30*pi/180;% [rad] angle limit
+d_lim = pi/6;% [rad] angle limit
 
 % carrot controller parameters
 r = 1.7;
-
 
 % initial state [x,y,theta]
 t = 0;
@@ -53,9 +43,8 @@ for i = 1:n
    % u = [3 (10-t)*pi/180]';% [ [m/s] [rad/s]]
     p1 = prev_waypoint;
     p2 = waypoints(waypoint_index,:);
-    [outside carrot_outside carrot_point] = get_carrot(p1', p2', xprev(1:2), r);
+    [carrot_outside, carrot_point] = get_carrot(p1', p2', xprev(1:2), r);
     
-   
     u = p_control(carrot_point, xprev, u);
     if (carrot_outside)
         
@@ -72,9 +61,7 @@ for i = 1:n
     xcur =  bicycle(xprev,  u(1), u(2), L, dt) + d;
     xprev = xcur;
     
-    
     if (waypoint_index > length(waypoints))
-%         waypoint_index = 1;
         end_i = i;
         break;
     end
@@ -87,7 +74,7 @@ imagesc(1-drawn_map');
 plot(startpos(1)/dxy, startpos(2)/dxy, 'ro', 'MarkerSize',10, 'LineWidth', 3);
 plot(searchgoal(1)/dxy, searchgoal(2)/dxy, 'gx', 'MarkerSize',10, 'LineWidth', 3 );
 
-x_record(1:2,:) = x_record(1:2,:)*10; %%%% Massive hack, fix this
+x_record(1:2,:) = x_record(1:2,:)*10;
 
 rectangle('Position',[-10 -2.5 20 5])
 quiver(x_record(1,1:i),x_record(2,1:i),cos(x_record(3,1:i)),sin(x_record(3,1:i)),'r*');
@@ -98,13 +85,6 @@ quiver(x_record(1,1:i),x_record(2,1:i),cos(x_record(3,1:i)+u_record(2,1:i)), ...
 xlabel('xpos [dm]');
 ylabel('ypos [dm]');
 axis equal;
-name = sprintf('/report_resources/robot_run BS %d RS %d sigma %d runtime %f rand %d.fig', nBS, nRS, sigma, runtime, bool_rand);
+name = sprintf('/report_resources/robot_run BS %d RS %d sigma %d runtime %f rand %d.fig', ...
+    nBS, nRS, sigma, runtime, bool_rand);
 saveas(gcf,[pwd name]);
-
-% xlabel('xpos [m]');
-% ylabel('ypos [m]');
-% legend('Measurement','True State','State Estimate');
-% if (makemovie) close(vidObj); end
-
-
-
